@@ -1,0 +1,95 @@
+<div id="page-wrapper">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                <check if="{{ @seller->id }}">
+                    <true>
+                        Edit Seller Account
+                        <a href="/home/admin/seller" class="btn btn-default pull-right"><i class="fa fa-arrow-left fa-fw"></i> Kembali</a>
+                    </true>
+                    <false>
+                        Tambah Seller
+                    </false>
+                </check>
+            </h1>
+        </div>
+    </div>
+    <div class="row">
+        <check if="{{ @message }}">
+            <div class="col-lg-12">                    
+                <div class="alert alert-{{ @message['type'] }}">{{ @message['data'] }}</div>
+            </div>
+        </check>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="fa fa-user fa-fw"></i> Account Details
+                </div>
+                <div class="panel-body">
+                    <form role="form" action="{{ @URI }}" method="POST">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input class="form-control" placeholder="Username" name="username" type="text" value="{{ @seller->username }}" required>
+                        </div>
+                        <check if="{{ !@seller->id }}">
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input class="form-control" placeholder="New Password" name="password" type="password" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Masukan Ulang Password</label>
+                                <input class="form-control" placeholder="Re-enter Password" name="password_confirmation" type="password" required>
+                            </div>
+                        </check>
+                        <div class="form-group">
+                            <label>Saldo</label>
+                            <div class="input-group">
+                                <span class="input-group-addon">Rp. </span>
+                                <input class="form-control" placeholder="10000" name="saldo" type="number" step="100" value="{{ @seller->saldo }}" required>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary">Save</button>
+                        <check if="{{ @seller->id }}">
+                            <true>
+                                <check if="{{ @seller->active==1 }}">
+                                    <true>
+                                        <a href="{{ @URI.'/active/0' }}" class="btn btn-warning">Lock</a>
+                                    </true>
+                                    <false>
+                                        <a href="{{ @URI.'/active/1' }}" class="btn btn-success">Unlock</a>
+                                    </false>
+                                </check>
+                                <a href="{{ @URI.'/delete' }}" class="btn btn-danger">Hapus</a>
+                            </true>
+                            <false>
+                                <a href="/home/admin/seller" class="btn btn-default">Kembali</a>
+                            </false>
+                        </check>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <check if="{{ @seller->id }}">
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-gear fa-fw"></i> Ganti Password
+                    </div>
+                    <div class="panel-body">
+                        <form role="form" action="{{ @URI }}" method="POST">
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input class="form-control" placeholder="New Password" name="password" type="password" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Masukan Ulang Password</label>
+                                <input class="form-control" placeholder="Re-enter Password" name="passwordconfirmation" type="password" required>
+                            </div>
+                            <button class="btn btn-primary">Save</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </check>
+    </div>
+</div>
