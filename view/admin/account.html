@@ -2,13 +2,13 @@
     <div class="row">
         <div class="col-lg-12">
             <h1 class="page-header">
-                <check if="{{ @seller->id }}">
+                <check if="{{ @user->uid }}">
                     <true>
-                        Edit Seller Account
-                        <a href="/home/admin/seller" class="btn btn-default pull-right"><i class="fa fa-arrow-left fa-fw"></i> Kembali</a>
+                        Edit SSH User
+                        <a href="/home/admin/server/{{ @server->id }}/account/" class="btn btn-default pull-right"><i class="fa fa-arrow-left fa-fw"></i> Kembali</a>
                     </true>
                     <false>
-                        Tambah Seller
+                        Tambah SSH User
                     </false>
                 </check>
             </h1>
@@ -29,47 +29,47 @@
                     <form role="form" action="{{ @URI }}" method="POST">
                         <div class="form-group">
                             <label>Username</label>
-                            <input class="form-control" placeholder="Username" name="username" type="text" value="{{ @seller->username }}" required>
+                            <input class="form-control" placeholder="Username" name="user" type="text" value="{{ @user->user }}" required>
                         </div>
-                        <check if="{{ !@seller->id }}">
+                        <check if="{{ !@user->uid }}">
                             <div class="form-group">
                                 <label>Password</label>
-                                <input class="form-control" placeholder="New Password" name="password" type="password" required>
+                                <input class="form-control" placeholder="New Password" name="pass" type="password" required>
                             </div>
                             <div class="form-group">
                                 <label>Masukan Ulang Password</label>
-                                <input class="form-control" placeholder="Re-enter Password" name="password_confirmation" type="password" required>
+                                <input class="form-control" placeholder="Re-enter Password" name="pass_confirmation" type="password" required>
                             </div>
                         </check>
                         <div class="form-group">
-                            <label>Saldo</label>
-                            <div class="input-group">
-                                <span class="input-group-addon">Rp. </span>
-                                <input class="form-control" placeholder="10000" name="saldo" type="number" step="100" value="{{ @seller->saldo }}" required>
+                            <label>Exp</label>
+                            <div class="input-group date">
+                                <input type="text" class="form-control" name="exp" value="{{ @user->exp?@user->exp:date("Y/m/d",strtotime("+30 days")) }}">
+                                <span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
                             </div>
                         </div>
                         <button class="btn btn-primary">Save</button>
-                        <check if="{{ @seller->id }}">
+                        <check if="{{ @user->uid }}">
                             <true>
-                                <check if="{{ @seller->active==1 }}">
+                                <check if="{{ @user->lock }}">
                                     <true>
-                                        <a href="{{ @URI.'/active/0' }}" class="btn btn-warning">Lock</a>
+                                        <a href="{{ @URI.'/active/1' }}" class="btn btn-success">Unlock</a>
                                     </true>
                                     <false>
-                                        <a href="{{ @URI.'/active/1' }}" class="btn btn-success">Unlock</a>
+                                        <a href="{{ @URI.'/active/0' }}" class="btn btn-warning">Lock</a>
                                     </false>
                                 </check>
                                 <a href="{{ @URI.'/delete' }}" class="btn btn-danger hapus">Hapus</a>
                             </true>
                             <false>
-                                <a href="/home/admin/seller" class="btn btn-default">Kembali</a>
+                                <a href="/home/admin/server/{{ @server->id }}/account/" class="btn btn-default">Kembali</a>
                             </false>
                         </check>
                     </form>
                 </div>
             </div>
         </div>
-        <check if="{{ @seller->id }}">
+        <check if="{{ @user->uid }}">
             <div class="col-md-6">
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -79,11 +79,11 @@
                         <form role="form" action="{{ @URI }}" method="POST">
                             <div class="form-group">
                                 <label>Password</label>
-                                <input class="form-control" placeholder="New Password" name="password" type="password" required>
+                                <input class="form-control" placeholder="New Password" name="pass" type="password" required>
                             </div>
                             <div class="form-group">
                                 <label>Masukan Ulang Password</label>
-                                <input class="form-control" placeholder="Re-enter Password" name="passwordconfirmation" type="password" required>
+                                <input class="form-control" placeholder="Re-enter Password" name="pass_confirmation" type="password" required>
                             </div>
                             <button class="btn btn-primary">Save</button>
                         </form>

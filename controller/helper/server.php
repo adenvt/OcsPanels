@@ -18,4 +18,5 @@ trait Server {
 		}
 		return $server;
 	}
+
 }

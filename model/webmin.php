@@ -9,13 +9,24 @@ class Webmin extends \Magic {
 		$old,
 		$data;
 
-	function __construct($url,$pass) {
-		//$url = $server->host;
-		//$pass = $server->getPass()
+	function __construct($server) {
+		$url = $server->host;
+		$pass = $server->getPass();
 		$db = new xmlrpc_client('/xmlrpc.cgi',$url,10000,'http');
 		$db->setCredentials('root',$pass);
 		$db->return_type = 'phpvals';
 		$this->db = $db;
+	}
+
+	static function exp_decode($days) {
+		return date("Y/m/d", strtotime("+$days days", 0));
+	}
+
+	static function exp_encode($days) {
+		$datetime1 = date_create('1970-01-01');
+		$datetime2 = date_create($days);
+		$interval = date_diff($datetime1, $datetime2);
+		return (int)$interval->format('%a');
 	}
 
 	function exec($method,$params=NULL) {
@@ -38,11 +49,18 @@ class Webmin extends \Magic {
 			$mapper = clone($this);
 			$mapper->old = $user;
 			$mapper->data = $user+array(
-				'lock'=>\Check::startwith($user['pass'],'!')
+				'lock'=>\Check::startwith($user['pass'],'!'),
+				'exp'=>($user['expire'])?$this->exp_decode($user['expire']):FALSE,
 			);
 			$out[$user['uid']] = $mapper;
 		}
 		return $out;
+	}
+
+	function cast(&$data=NULL) {
+		if (isset($data))
+			$data = $this->data;
+		return $this->data;
 	}
 
 	function uid() {
@@ -58,6 +76,10 @@ class Webmin extends \Magic {
 			if($user['user']==$username)
 				$exist = TRUE;
 		return  ( ! $exist);
+	}
+
+	function crypt($pass) {
+		return $this->exec('useradmin::encrypt_password',[$pass]);
 	}
 
 	function load($uid) {
@@ -88,12 +110,20 @@ class Webmin extends \Magic {
 		else return FALSE;
 	}
 
-	function dry() {
-		return empty($this->data);
+	function erase() {
+		if ($this->old) {
+			return $this->exec('useradmin::delete_user',[$this->old]);
+		}
 	}
 
-	function crypt($pass) {
-		return $this->exec('useradmin::encrypt_password',[$pass]);
+	function dry() {
+		return empty($this->old);
+	}
+
+	function reroute($url) {
+		if ($this->dry())
+			\Base::instance()->reroute($url);
+		return $this;
 	}
 
 	function reset() {
@@ -106,20 +136,20 @@ class Webmin extends \Magic {
     }
 
     function set($key, $val) {
-    	if ($key=='pass')
-    		$this->data['pass'] = $this->crypt($val);
-    	else
-        	$this->data[$key] = $val;
+        $this->data[$key] = $val;
     }
 
     function &get($key) {
-    	if (array_key_exists($key,$this->data))
-        	return $this->data[$key];
-        user_error(sprintf(self::E_Field,$key));
+        return $this->data[$key];
     }
 
     function clear($key) {
         unset($this->data[$key]);
     }
 
+    function copyFrom($key) {
+    	$var = \Base::instance()->get($key);
+    	foreach ($var as $key => $value)
+    		$this->data[$key] = $value;
+    }
 }

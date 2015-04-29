@@ -58,9 +58,9 @@ class Seller extends \Home {
 		$f3->reroute('/home/admin/seller/'.$seller->id);
 	}
 
-	function Lock($f3,$data) {
+	function Lock($f3) {
 		$seller = $this->loadSeller();
-		$seller->active = $data['active'];
+		$seller->active = $f3->get('PARAMS.active');
 		$seller->save();
 		$this->flash('Berhasil Disimpan','success');
 		$f3->reroute('/home/admin/seller/'.$seller->id);
