@@ -4,8 +4,7 @@ class Controller {
 
 	function __construct() {
 		$f3 = Base::instance();
-		$DB = "mysql:host=$f3->DB_HOST;port=3306;dbname=$f3->DB_NAME";
-        $f3->set('DATABASE', new DB\SQL($DB,$f3->DB_USER,$f3->DB_PASS));
+        $f3->set('DATABASE', new DB\SQL($f3->DB_SET,$f3->DB_USER,$f3->DB_PASS));
 	}
 
 	function flash($data,$tipe='danger') {
