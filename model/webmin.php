@@ -7,15 +7,17 @@ class Webmin extends \Magic {
 	protected
 		$db,
 		$old,
-		$data;
+		$data,
+		$sid;
 
 	function __construct($server) {
 		$url = $server->host;
 		$pass = $server->getPass();
-		$db = new xmlrpc_client('/xmlrpc.cgi',$url,10000,'http');
+		$db = new xmlrpc_client('xmlrpc.cgi',$url,10000,'http');
 		$db->setCredentials('root',$pass);
 		$db->return_type = 'phpvals';
 		$this->db = $db;
+		$this->sid = \Base::instance()->hash($url);
 	}
 
 	static function exp_decode($days) {
@@ -42,7 +44,11 @@ class Webmin extends \Magic {
 	}
 
 	function find() {
-		$users = $this->exec('useradmin::list_users');
+		$cache = \Cache::instance();
+		if (! $cache->exists($this->sid,$users)) {
+			$users = $this->exec('useradmin::list_users');
+			$cache->set($this->sid,$users,60);
+		}
 		$out = array();
 		foreach ($users as $user) {
 			if ($user['gid']!=100) continue;
@@ -89,7 +95,10 @@ class Webmin extends \Magic {
 	}
 
 	function save() {
-		return ($this->old)?$this->update():$this->insert();
+		$result = ($this->old)?$this->update():$this->insert();
+		if ($result)
+			\Cache::instance()->clear($this->sid);
+		return $result;
 	}
 
 	function insert() {
@@ -98,8 +107,11 @@ class Webmin extends \Magic {
 		$user['gid'] = 100;
 		$user['home'] = '/home/'.$user['user'];
 		$user['shell'] = '/bin/false';
-		if ($this->check($this->data['user']))
-			return $this->exec('useradmin::create_user',[$user]);
+		if ($this->check($this->data['user'])) {
+			$result = $this->exec('useradmin::create_user',[$user]);
+			if ($result) $this->data = $user;
+			return $result;
+		}
 		else return FALSE;
 	}
 
