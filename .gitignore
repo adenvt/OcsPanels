@@ -1,4 +1,2 @@
-asset/bower_components/
+config/
 tmp/
-server.bat
-test.php
