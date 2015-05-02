@@ -25,18 +25,26 @@ class Install {
 		$db_user = $post['DB_USER'];
 		$db_pass = $post['DB_PASS'];
 		$dsn = "mysql:host=$db_host;port=3306;dbname=$db_name";
-		$db = new \DB\SQL($dsn,$db_user,$db_pass);
-		$db->exec(explode(';',$f3->read('installation/install.sql')));
-		$user = new \DB\SQL\Mapper($db,'user');
-		$user->username = $post['username'];
-		$user->password = \Bcrypt::instance()->hash($post['password']);
-		$user->type = 1;
-		$user->save();
-		$key = bin2hex(openssl_random_pseudo_bytes(32));
-		$data = "[globals]\nDEBUG=0\nAUTOLOAD=\"controller/;model/\"\nUI=\"view/\"\nAPP_KEY=\"$key\"\nDB_SET=\"$dsn\"\nDB_USER=\"$db_user\"\nDB_PASS=\"$db_pass\"";
-		$f3->write('config/config.ini',$data);
-		$f3->write('config/route.ini',$f3->read('installation/route.ini'));
-		$this->flash('Success... Silahkan Hapus Folder Installation','success');
-		$f3->reroute('/');
+		try {
+			$db = new \DB\SQL($dsn,$db_user,$db_pass);
+			$db->begin();
+			$db->exec(explode(';',$f3->read('installation/install.sql')));
+			$user = new \DB\SQL\Mapper($db,'user');
+			$user->username = $post['username'];
+			$user->password = \Bcrypt::instance()->hash($post['password']);
+			$user->type = 1;
+			$user->save();
+			$key = bin2hex(openssl_random_pseudo_bytes(32));
+			$data = "[globals]\nDEBUG=0\nAUTOLOAD=\"controller/;model/\"\nUI=\"view/\"\nAPP_KEY=\"$key\"\nDB_SET=\"$dsn\"\nDB_USER=\"$db_user\"\nDB_PASS=\"$db_pass\"";
+			$f3->write('config/config.ini',$data);
+			$f3->write('config/route.ini',$f3->read('installation/route.ini'));
+			$db->commit();
+			$this->flash('Success... Silahkan Hapus Folder Installation','success');
+		} catch (Exception $e) {
+			$db->rollback();
+			$this->flash($e->getMessage());
+		} finally {
+			$f3->reroute('/');
+		}
 	}
 }
