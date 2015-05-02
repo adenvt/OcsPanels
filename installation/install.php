@@ -25,8 +25,8 @@ class Install {
 		$db_user = $post['DB_USER'];
 		$db_pass = $post['DB_PASS'];
 		$dsn = "mysql:host=$db_host;port=3306;dbname=$db_name";
+		$db = new \DB\SQL($dsn,$db_user,$db_pass);
 		try {
-			$db = new \DB\SQL($dsn,$db_user,$db_pass);
 			$db->begin();
 			$db->exec(explode(';',$f3->read('installation/install.sql')));
 			$user = new \DB\SQL\Mapper($db,'user');
