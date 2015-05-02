@@ -43,8 +43,8 @@ class Install {
 		} catch (Exception $e) {
 			$db->rollback();
 			$this->flash($e->getMessage());
-		} finally {
 			$f3->reroute('/');
 		}
+		$f3->reroute('/');
 	}
 }
